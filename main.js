@@ -19,11 +19,12 @@ if (!app.requestSingleInstanceLock()) {
   app.quit();
 } else {
   app.on('second-instance', () => {
-    if (win) { if (win.isMinimized()) win.restore(); win.show(); win.focus(); }
+    if (win && win.isVisible()) { if (win.isMinimized()) win.restore(); win.show(); win.focus(); }
   });
 }
 
 let win = null;
+let splash = null;
 
 // ---------- lembra tamanho e posição da janela
 const stateFile = () => path.join(app.getPath('userData'), 'janela.json');
@@ -38,8 +39,35 @@ function saveState() {
 
 const isAppUrl = (u) => { try { return new URL(u).origin === APP_ORIGIN; } catch (_) { return false; } };
 
+// ---------- abertura animada: janelinha com o M do MEEVO enquanto o app carrega
+function createSplash() {
+  splash = new BrowserWindow({
+    width: 340, height: 300, frame: false, resizable: false, movable: true, minimizable: false, maximizable: false,
+    skipTaskbar: false, center: true, show: false, backgroundColor: '#0B0A14', title: 'MEEVO',
+    icon: path.join(__dirname, 'build', 'icon.ico'),
+    webPreferences: { contextIsolation: true, sandbox: true, nodeIntegration: false },
+  });
+  splash.once('ready-to-show', () => splash && !splash.isDestroyed() && splash.show());
+  splash.on('closed', () => { splash = null; });
+  splash.loadFile(path.join(__dirname, 'splash.html'));
+}
+
 function createWindow() {
   const st = loadState();
+  const openedAt = Date.now();
+  let revealed = false;
+  // Mostra a janela principal quando o MEEVO avisa que terminou de carregar
+  // (mínimo de 1,8 s para a animação da abertura completar)
+  const reveal = () => {
+    if (revealed || !win || win.isDestroyed()) return;
+    revealed = true;
+    setTimeout(() => {
+      if (!win || win.isDestroyed()) return;
+      if (st.maximized) win.maximize();
+      win.show(); win.focus();
+      if (splash && !splash.isDestroyed()) splash.close();
+    }, Math.max(0, 1800 - (Date.now() - openedAt)));
+  };
   win = new BrowserWindow({
     x: st.x, y: st.y, width: st.width || 1280, height: st.height || 800,
     minWidth: 940, minHeight: 600,
@@ -59,8 +87,14 @@ function createWindow() {
       spellcheck: true,
     },
   });
-  if (st.maximized) win.maximize();
-  win.once('ready-to-show', () => win.show());
+  ipcMain.on('app:ready', (e) => { if (win && e.sender === win.webContents) reveal(); });
+  // Versões do site sem o aviso, ou página de "sem conexão": mostra assim que a página carrega
+  win.webContents.on('did-finish-load', () => {
+    const u = win.webContents.getURL();
+    if (!isAppUrl(u)) return reveal();
+    win.webContents.executeJavaScript('typeof window.meevoReady === "function"').then((has) => { if (!has) reveal(); }).catch(reveal);
+  });
+  setTimeout(reveal, 20000); // segurança: nunca fica preso na abertura
   win.on('close', saveState);
 
   win.loadURL(APP_URL);
@@ -164,6 +198,7 @@ app.whenReady().then(() => {
     }
   });
 
+  createSplash();
   createWindow();
 
   // Atualização automática: baixa em segundo plano e mostra um ícone verde na barra do app

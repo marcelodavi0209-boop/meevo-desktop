@@ -1,7 +1,7 @@
 {
   "name": "meevo-desktop",
   "productName": "MEEVO",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "MEEVO para Windows - Conecte. Converse. Compartilhe.",
   "main": "main.js",
   "author": "DALLY",
@@ -25,6 +25,7 @@
     },
     "files": [
       "main.js",
+      "splash.html",
       "preload.js",
       "picker.html",
       "picker-preload.js",

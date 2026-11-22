@@ -10,11 +10,21 @@ jobs:
   build:
     runs-on: windows-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
         with:
           node-version: 22
       - run: npm install
-      - run: npx electron-builder --win nsis --publish always
+      - run: npx electron-builder --win nsis --publish never
+      - name: Publicar instalador
+        shell: bash
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          VERSION=$(node -p "require('./package.json').version")
+          TAG="v$VERSION"
+          if gh release view "$TAG" > /dev/null 2>&1; then
+            gh release upload "$TAG" dist/MEEVO-Setup.exe --clobber
+          else
+            gh release create "$TAG" dist/MEEVO-Setup.exe --target "$GITHUB_SHA" --title "MEEVO $VERSION" --notes "Instalador do MEEVO para Windows." --latest
+          fi

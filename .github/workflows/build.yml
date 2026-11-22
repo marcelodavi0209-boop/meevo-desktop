@@ -23,8 +23,9 @@ jobs:
         run: |
           VERSION=$(node -p "require('./package.json').version")
           TAG="v$VERSION"
+          FILES="dist/MEEVO-Setup.exe dist/MEEVO-Setup.exe.blockmap dist/latest.yml"
           if gh release view "$TAG" > /dev/null 2>&1; then
-            gh release upload "$TAG" dist/MEEVO-Setup.exe --clobber
+            gh release upload "$TAG" $FILES --clobber
           else
-            gh release create "$TAG" dist/MEEVO-Setup.exe --target "$GITHUB_SHA" --title "MEEVO $VERSION" --notes "Instalador do MEEVO para Windows." --latest
+            gh release create "$TAG" $FILES --target "$GITHUB_SHA" --title "MEEVO $VERSION" --notes "Instalador do MEEVO para Windows." --latest
           fi

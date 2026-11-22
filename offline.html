@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src 'self' file: data:; style-src 'unsafe-inline'; script-src 'unsafe-inline'">
+<title>MEEVO</title>
+<style>
+  html, body { margin: 0; height: 100%; }
+  body { font-family: 'Segoe UI', system-ui, sans-serif; background: radial-gradient(600px 400px at 30% 20%, rgba(124,58,237,.3), transparent 70%), #0B0A14; color: #F4F1FF; display: grid; place-items: center; text-align: center; }
+  .card { max-width: 420px; padding: 32px; background: rgba(25,21,43,.85); border: 1px solid rgba(139,92,246,.25); border-radius: 22px; }
+  img { width: 96px; height: 96px; }
+  h1 { margin: 12px 0 6px; font-size: 22px; }
+  p { color: #A7A1BA; margin: 0 0 20px; line-height: 1.45; }
+  button { font: inherit; font-weight: 600; color: #fff; border: 0; border-radius: 10px; padding: 12px 22px; cursor: pointer; background: linear-gradient(135deg, #7C3AED, #8B5CF6 55%, #38BDF8 130%); }
+  small { display: block; margin-top: 14px; color: #6F6887; }
+</style>
+</head>
+<body>
+  <div class="card">
+    <img src="build/icon.png" alt="">
+    <h1>Não foi possível conectar</h1>
+    <p>Verifique sua internet. Se o MEEVO ficou um tempo sem uso, o servidor pode estar acordando: isso leva cerca de 1 minuto.</p>
+    <button id="retry">Tentar de novo</button>
+    <small id="auto"></small>
+  </div>
+<script>
+  const target = new URLSearchParams(location.search).get('url');
+  const go = () => { if (target && /^https:\/\//.test(target)) location.href = target; };
+  document.getElementById('retry').onclick = go;
+  let n = 20;
+  const t = setInterval(() => { n--; document.getElementById('auto').textContent = 'Tentando de novo em ' + n + 's…'; if (n <= 0) { clearInterval(t); go(); } }, 1000);
+</script>
+</body>
+</html>

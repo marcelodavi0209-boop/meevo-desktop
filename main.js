@@ -2,6 +2,8 @@
 // O app abre o MEEVO publicado numa janela própria. Assim, toda atualização
 // do site chega automaticamente, sem precisar reinstalar.
 const { app, BrowserWindow, session, desktopCapturer, shell, ipcMain, Menu } = require('electron');
+let autoUpdater = null;
+try { ({ autoUpdater } = require('electron-updater')); } catch (_) {}
 const path = require('path');
 const fs = require('fs');
 
@@ -9,6 +11,8 @@ const APP_URL = 'https://meevo-21vz.onrender.com';
 const APP_ORIGIN = new URL(APP_URL).origin;
 
 app.setAppUserModelId('com.dallyverso.meevo'); // notificações do Windows com nome e ícone do MEEVO
+// Evita a "tela verde" ao exibir vídeo em tela cheia em algumas placas de vídeo
+app.commandLine.appendSwitch('disable-direct-composition-video-overlays');
 
 // Só uma janela do MEEVO aberta por vez
 if (!app.requestSingleInstanceLock()) {
@@ -44,6 +48,9 @@ function createWindow() {
     icon: path.join(__dirname, 'build', 'icon.ico'),
     autoHideMenuBar: true,
     show: false,
+    // Barra de título moderna: o MEEVO desenha a barra, e o Windows só mostra os botões de janela
+    titleBarStyle: 'hidden',
+    titleBarOverlay: { color: '#0B0A14', symbolColor: '#A7A1BA', height: 36 },
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
       contextIsolation: true,
@@ -81,6 +88,17 @@ function createWindow() {
   });
 }
 
+// ---------- estado da atualização (enviado para a barra do app)
+let updateState = null;
+function sendUpdate(state) {
+  updateState = state;
+  if (win && !win.isDestroyed()) win.webContents.send('update:status', state);
+}
+ipcMain.handle('update:get', () => updateState);
+ipcMain.on('update:install', () => {
+  if (autoUpdater && updateState && updateState.state === 'ready') autoUpdater.quitAndInstall(true, true);
+});
+
 // ---------- seletor de tela/janela para transmitir
 let pickerOpen = false;
 function openPicker(sources, audioRequested) {
@@ -94,6 +112,7 @@ function openPicker(sources, audioRequested) {
       parent: win, modal: true, width: 860, height: 640, resizable: true, minimizable: false, maximizable: false,
       backgroundColor: '#12101E', title: 'Transmitir tela - MEEVO', icon: path.join(__dirname, 'build', 'icon.ico'),
       autoHideMenuBar: true, show: false,
+      titleBarStyle: 'hidden', titleBarOverlay: { color: '#12101E', symbolColor: '#A7A1BA', height: 36 },
       webPreferences: { preload: path.join(__dirname, 'picker-preload.js'), contextIsolation: true, sandbox: true },
     });
     pw.once('ready-to-show', () => pw.show());
@@ -146,6 +165,19 @@ app.whenReady().then(() => {
   });
 
   createWindow();
+
+  // Atualização automática: baixa em segundo plano e mostra um ícone verde na barra do app
+  if (autoUpdater && app.isPackaged) {
+    autoUpdater.autoDownload = true;
+    autoUpdater.autoInstallOnAppQuit = true;
+    autoUpdater.on('update-available', (info) => sendUpdate({ state: 'downloading', version: info.version, percent: 0 }));
+    autoUpdater.on('download-progress', (p) => sendUpdate({ state: 'downloading', version: updateState && updateState.version, percent: Math.round(p.percent || 0) }));
+    autoUpdater.on('update-downloaded', (info) => sendUpdate({ state: 'ready', version: info.version }));
+    autoUpdater.on('error', (err) => console.error('update', err && err.message));
+    const check = () => autoUpdater.checkForUpdates().catch(() => {});
+    check();
+    setInterval(check, 60 * 60 * 1000);
+  }
 });
 
 app.on('window-all-closed', () => app.quit());

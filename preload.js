@@ -1,7 +1,10 @@
-// Informa ao site que ele está rodando dentro do app de Windows
-const { contextBridge } = require('electron');
+// Ponte entre o site e o app de Windows
+const { contextBridge, ipcRenderer } = require('electron');
 
 contextBridge.exposeInMainWorld('meevoDesktop', {
   platform: 'windows',
-  version: '1.0.0',
+  // Atualização do app: { state: 'downloading' | 'ready', version, percent }
+  getUpdate: () => ipcRenderer.invoke('update:get'),
+  onUpdate: (cb) => ipcRenderer.on('update:status', (_e, state) => cb(state)),
+  installUpdate: () => ipcRenderer.send('update:install'),
 });

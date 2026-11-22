@@ -13,9 +13,11 @@
   p { color: #A7A1BA; margin: 0 0 20px; line-height: 1.45; }
   button { font: inherit; font-weight: 600; color: #fff; border: 0; border-radius: 10px; padding: 12px 22px; cursor: pointer; background: linear-gradient(135deg, #7C3AED, #8B5CF6 55%, #38BDF8 130%); }
   small { display: block; margin-top: 14px; color: #6F6887; }
+  .drag { position: fixed; top: 0; left: 0; right: 0; height: 36px; -webkit-app-region: drag; }
 </style>
 </head>
 <body>
+  <div class="drag"></div>
   <div class="card">
     <img src="build/icon.png" alt="">
     <h1>Não foi possível conectar</h1>

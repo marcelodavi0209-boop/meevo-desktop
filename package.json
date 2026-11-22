@@ -1,7 +1,7 @@
 {
   "name": "meevo-desktop",
   "productName": "MEEVO",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "MEEVO para Windows - Conecte. Converse. Compartilhe.",
   "main": "main.js",
   "author": "DALLY",
@@ -19,9 +19,23 @@
     "appId": "com.dallyverso.meevo",
     "productName": "MEEVO",
     "artifactName": "MEEVO-Setup.${ext}",
-    "directories": { "output": "dist", "buildResources": "build" },
-    "files": ["main.js", "preload.js", "picker.html", "picker-preload.js", "offline.html", "build/icon.ico", "build/icon.png"],
-    "win": { "target": "nsis", "icon": "build/icon.ico" },
+    "directories": {
+      "output": "dist",
+      "buildResources": "build"
+    },
+    "files": [
+      "main.js",
+      "preload.js",
+      "picker.html",
+      "picker-preload.js",
+      "offline.html",
+      "build/icon.ico",
+      "build/icon.png"
+    ],
+    "win": {
+      "target": "nsis",
+      "icon": "build/icon.ico"
+    },
     "nsis": {
       "oneClick": true,
       "perMachine": false,
@@ -32,6 +46,16 @@
       "uninstallerIcon": "build/icon.ico",
       "uninstallDisplayName": "MEEVO"
     },
-    "publish": [{ "provider": "github", "releaseType": "release" }]
+    "publish": [
+      {
+        "provider": "github",
+        "owner": "marcelodavi0209-boop",
+        "repo": "meevo-desktop",
+        "releaseType": "release"
+      }
+    ]
+  },
+  "dependencies": {
+    "electron-updater": "^6.3.0"
   }
 }

@@ -1,6 +1,6 @@
-# MEEVO para Windows
+# LEEMO para Windows
 
-App de Windows do MEEVO. Ele abre o MEEVO publicado (https://meevo-21vz.onrender.com) numa janela própria, então as atualizações do site chegam sozinhas, sem reinstalar.
+App de Windows do LEEMO. Ele abre o LEEMO publicado (https://meevo-21vz.onrender.com) numa janela própria, então as atualizações do site chegam sozinhas, sem reinstalar.
 
 - Seletor próprio para transmitir uma tela ou janela, com opção de enviar o som do computador
 - Notificações do Windows, ícone no Menu Iniciar e na área de trabalho
@@ -10,7 +10,7 @@ App de Windows do MEEVO. Ele abre o MEEVO publicado (https://meevo-21vz.onrender
 
 ## Gerar o instalador (pelo GitHub, sem instalar nada no PC)
 
-O arquivo `.github/workflows/build.yml` (a mesma coisa está em `build.yml`) gera o instalador `MEEVO-Setup.exe` no GitHub Actions e publica em **Releases**.
+O arquivo `.github/workflows/build.yml` (a mesma coisa está em `build.yml`) gera o instalador `LEEMO-Setup.exe` no GitHub Actions e publica em **Releases**.
 
 Para lançar uma versão nova do app: aumente a `version` no `package.json` (ex.: 1.0.1) e rode o workflow de novo.
 

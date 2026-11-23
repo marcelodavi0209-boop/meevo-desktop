@@ -10,11 +10,22 @@ jobs:
   build:
     runs-on: windows-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
         with:
           node-version: 22
       - run: npm install
-      - run: npx electron-builder --win nsis --publish always
+      - run: npx electron-builder --win nsis --publish never
+      - name: Publicar instalador
+        shell: bash
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          VERSION=$(node -p "require('./package.json').version")
+          TAG="v$VERSION"
+          FILES="dist/LEEMO-Setup.exe dist/LEEMO-Setup.exe.blockmap dist/latest.yml"
+          if gh release view "$TAG" > /dev/null 2>&1; then
+            gh release upload "$TAG" $FILES --clobber
+          else
+            gh release create "$TAG" $FILES --target "$GITHUB_SHA" --title "LEEMO $VERSION" --notes "Instalador do LEEMO para Windows." --latest
+          fi

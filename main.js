@@ -1,5 +1,5 @@
-// MEEVO para Windows
-// O app abre o MEEVO publicado numa janela própria. Assim, toda atualização
+// LEEMO para Windows
+// O app abre o LEEMO publicado numa janela própria. Assim, toda atualização
 // do site chega automaticamente, sem precisar reinstalar.
 const { app, BrowserWindow, session, desktopCapturer, shell, ipcMain, Menu } = require('electron');
 let autoUpdater = null;
@@ -10,11 +10,13 @@ const fs = require('fs');
 const APP_URL = 'https://meevo-21vz.onrender.com';
 const APP_ORIGIN = new URL(APP_URL).origin;
 
-app.setAppUserModelId('com.dallyverso.meevo'); // notificações do Windows com nome e ícone do MEEVO
+app.setAppUserModelId('com.dallyverso.meevo'); // notificações do Windows com nome e ícone do LEEMO
+// O app se chamava MEEVO: continua usando a mesma pasta de dados, para ninguém perder o login nem as configurações
+app.setPath('userData', path.join(app.getPath('appData'), 'MEEVO'));
 // Evita a "tela verde" ao exibir vídeo em tela cheia em algumas placas de vídeo
 app.commandLine.appendSwitch('disable-direct-composition-video-overlays');
 
-// Só uma janela do MEEVO aberta por vez
+// Só uma janela do LEEMO aberta por vez
 if (!app.requestSingleInstanceLock()) {
   app.quit();
 } else {
@@ -39,11 +41,11 @@ function saveState() {
 
 const isAppUrl = (u) => { try { return new URL(u).origin === APP_ORIGIN; } catch (_) { return false; } };
 
-// ---------- abertura animada: janelinha com o M do MEEVO enquanto o app carrega
+// ---------- abertura animada: janelinha com o mascote do LEEMO enquanto o app carrega
 function createSplash() {
   splash = new BrowserWindow({
     width: 340, height: 300, frame: false, resizable: false, movable: true, minimizable: false, maximizable: false,
-    skipTaskbar: false, center: true, show: false, backgroundColor: '#0B0A14', title: 'MEEVO',
+    skipTaskbar: false, center: true, show: false, backgroundColor: '#0B0A14', title: 'LEEMO',
     icon: path.join(__dirname, 'build', 'icon.ico'),
     webPreferences: { contextIsolation: true, sandbox: true, nodeIntegration: false },
   });
@@ -56,7 +58,7 @@ function createWindow() {
   const st = loadState();
   const openedAt = Date.now();
   let revealed = false;
-  // Mostra a janela principal quando o MEEVO avisa que terminou de carregar
+  // Mostra a janela principal quando o LEEMO avisa que terminou de carregar
   // (mínimo de 1,8 s para a animação da abertura completar)
   const reveal = () => {
     if (revealed || !win || win.isDestroyed()) return;
@@ -72,11 +74,11 @@ function createWindow() {
     x: st.x, y: st.y, width: st.width || 1280, height: st.height || 800,
     minWidth: 940, minHeight: 600,
     backgroundColor: '#0B0A14',
-    title: 'MEEVO',
+    title: 'LEEMO',
     icon: path.join(__dirname, 'build', 'icon.ico'),
     autoHideMenuBar: true,
     show: false,
-    // Barra de título moderna: o MEEVO desenha a barra, e o Windows só mostra os botões de janela
+    // Barra de título moderna: o LEEMO desenha a barra, e o Windows só mostra os botões de janela
     titleBarStyle: 'hidden',
     titleBarOverlay: { color: '#0B0A14', symbolColor: '#A7A1BA', height: 36 },
     webPreferences: {
@@ -144,7 +146,7 @@ function openPicker(sources, audioRequested) {
 
     const pw = new BrowserWindow({
       parent: win, modal: true, width: 860, height: 640, resizable: true, minimizable: false, maximizable: false,
-      backgroundColor: '#12101E', title: 'Transmitir tela - MEEVO', icon: path.join(__dirname, 'build', 'icon.ico'),
+      backgroundColor: '#12101E', title: 'Transmitir tela - LEEMO', icon: path.join(__dirname, 'build', 'icon.ico'),
       autoHideMenuBar: true, show: false,
       titleBarStyle: 'hidden', titleBarOverlay: { color: '#12101E', symbolColor: '#A7A1BA', height: 36 },
       webPreferences: { preload: path.join(__dirname, 'picker-preload.js'), contextIsolation: true, sandbox: true },
@@ -174,14 +176,14 @@ app.whenReady().then(() => {
   Menu.setApplicationMenu(null);
   const ses = session.defaultSession;
 
-  // Permissões (microfone, câmera, notificações, tela cheia) só para o MEEVO
+  // Permissões (microfone, câmera, notificações, tela cheia) só para o LEEMO
   const allowed = new Set(['media', 'notifications', 'fullscreen', 'clipboard-sanitized-write', 'display-capture']);
   ses.setPermissionRequestHandler((wc, permission, callback, details) => {
     callback(allowed.has(permission) && isAppUrl(details.requestingUrl || wc.getURL()));
   });
   ses.setPermissionCheckHandler((wc, permission, origin) => allowed.has(permission) && (origin === APP_ORIGIN || isAppUrl(origin)));
 
-  // Quando o MEEVO pede para transmitir a tela, mostramos o seletor do app
+  // Quando o LEEMO pede para transmitir a tela, mostramos o seletor do app
   ses.setDisplayMediaRequestHandler(async (request, callback) => {
     try {
       const sources = await desktopCapturer.getSources({

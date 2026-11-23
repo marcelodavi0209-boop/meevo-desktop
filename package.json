@@ -1,8 +1,8 @@
 {
   "name": "meevo-desktop",
-  "productName": "MEEVO",
-  "version": "1.0.2",
-  "description": "MEEVO para Windows - Conecte. Converse. Compartilhe.",
+  "productName": "LEEMO",
+  "version": "1.0.3",
+  "description": "LEEMO para Windows - Sua galera. Seu lugar.",
   "main": "main.js",
   "author": "DALLY",
   "license": "UNLICENSED",
@@ -17,8 +17,8 @@
   },
   "build": {
     "appId": "com.dallyverso.meevo",
-    "productName": "MEEVO",
-    "artifactName": "MEEVO-Setup.${ext}",
+    "productName": "LEEMO",
+    "artifactName": "LEEMO-Setup.${ext}",
     "directories": {
       "output": "dist",
       "buildResources": "build"
@@ -42,10 +42,10 @@
       "perMachine": false,
       "createDesktopShortcut": true,
       "createStartMenuShortcut": true,
-      "shortcutName": "MEEVO",
+      "shortcutName": "LEEMO",
       "installerIcon": "build/icon.ico",
       "uninstallerIcon": "build/icon.ico",
-      "uninstallDisplayName": "MEEVO"
+      "uninstallDisplayName": "LEEMO"
     },
     "publish": [
       {
